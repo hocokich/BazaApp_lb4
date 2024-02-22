@@ -1,0 +1,25 @@
+﻿<Window x:Class="BazaApp_lb4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BazaApp_lb4"
+        mc:Ignorable="d"
+        Title="Baza by Sanyok" Height="450" Width="420" ResizeMode="NoResize">
+    <Grid>
+
+        <Button x:Name="ButtonAddStudent" Content="Добавить" Margin="69,344,0,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Left" Width="90" Click="ButtonAddStudent_Click"/>
+        <Button x:Name="ButtonEditStudent" Content="Редактировать" Margin="164,344,0,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Left" Width="90" Click="ButtonEditStudent_Click"/>
+        <Button x:Name="ButtonDelStudent" Content="Удалить" Margin="259,344,0,0" VerticalAlignment="Top" Height="23" HorizontalAlignment="Left" Width="90" Click="ButtonDelStudent_Click"/>
+        <Button x:Name="ButtonOpenFile" Content="Открыть" HorizontalAlignment="Left" Margin="27,10,0,0" VerticalAlignment="Top" Click="ButtonOpenFile_Click"/>
+        <Label x:Name="lb" Content="" HorizontalAlignment="Left" Margin="423,40,0,0" VerticalAlignment="Top" Height="39" Width="117"/>
+        <DataGrid x:Name="Log" Margin="27,69,0,130" HorizontalAlignment="Left" Width="353">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding uID}" IsReadOnly="True" Header="uID"/>
+                <DataGridTextColumn Binding="{Binding Lastname}" IsReadOnly="True" Header="Фамилия"/>
+                <DataGridTextColumn Binding="{Binding Math}" IsReadOnly="True" Header="Математика"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</Window>
