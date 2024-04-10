@@ -16,6 +16,7 @@ using System.Data.SQLite;
 using Microsoft.Win32;
 using static BazaApp_lb4.MainWindow;
 using static System.Data.Entity.Infrastructure.Design.Executor;
+using static BazaApp_lb4.bdOperation;
 
 namespace BazaApp_lb4
 {
@@ -24,56 +25,16 @@ namespace BazaApp_lb4
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static MainWindow Instance { get; private set; } // тут будет форма
         public MainWindow()
         {
             InitializeComponent();
-            Instance = this;
-        }
-
-        public class StudentInGrid
-        {
-            public int uID { get; set; }
-            public string Lastname { get; set; }
-            public int Math { get; set; }
         }
 
         string db_name = "";
 
-        private void LogStudents()
-        {
-            {
-                SQLiteConnection m_dbConnection;
-                m_dbConnection = new SQLiteConnection("Data Source=" + db_name + ";Version=3;");
-
-                //открытие соединения с базой данных
-                m_dbConnection.Open();
-
-                //вывод учеников в лог
-                string sqlShow = "SELECT Students.uID, Lastname, Math FROM Students, Grades where Students.uID=Grades.uID";
-                SQLiteCommand command = new SQLiteCommand(sqlShow, m_dbConnection);
-                SQLiteDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    //чтение строки из data
-                    var data = new StudentInGrid
-                    {
-                        uID = int.Parse(reader["uID"].ToString()),
-                        Lastname = reader["Lastname"].ToString(),
-                        Math = int.Parse(reader["Math"].ToString())
-                    };
-                    //добавление студента в DataGrid
-                    Log.Items.Add(data);
-                }
-
-                //закрытие соединения с базой данных
-                m_dbConnection.Close();
-            }
-        }
-
         private void ButtonOpenFile_Click(object sender, RoutedEventArgs e)
         {
-            Log.Items.Clear();
+            Tab.Items.Clear();
 
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.ShowDialog();
@@ -83,64 +44,70 @@ namespace BazaApp_lb4
 
             if (db_name != "")
             {
-                LogStudents();
+                bdOperation bd = new bdOperation();
+                bd.bdNamePath= db_name;
+                bd.LogStudents(Tab.Items);
             }
         }
 
         private void ButtonAddStudent_Click(object sender, RoutedEventArgs e)
         {
-            if (Log.SelectedIndex > -1 || db_name != null){
-
+            if (Tab.SelectedIndex > -1 || db_name != null)
+            {
                 WPFAddStudents add = new WPFAddStudents();
 
-                if (add.ShowDialog() == true){
-                    Log.Items.Clear();
+                if (add.ShowDialog() == true)
+                {
+                    Tab.Items.Clear();
 
                     //Берем данные из открывшегося окна
-                    var Studentik = new StudentInGrid(){
+                    var Studentik = new StudentInGrid()
+                    {
                         uID = int.Parse(add.TextboxUID.Text),
                         Lastname = add.TextboxStudentLastname.Text,
                         Math = int.Parse(add.TextboxStudentMath.Text)
                     };
 
                     //добавление ученика в базу
-                    BD bd = new BD();
+                    bdOperation bd = new bdOperation();
                     bd.bdNamePath = db_name;
                     bd.AddStudent(Studentik.uID, Studentik.Math, Studentik.Lastname);
 
-                    LogStudents();
+                    //Вывести в grid
+                    bd.LogStudents(Tab.Items);
                 }
             }
         }
 
         private void ButtonDelStudent_Click(object sender, RoutedEventArgs e)
         {
-            if (Log.SelectedIndex > -1){
+            if (Tab.SelectedIndex > -1)
+            {
 
                 //Взятие данных о студенте из grid
-                StudentInGrid Studentik = (StudentInGrid)Log.SelectedItem;
+                StudentInGrid Studentik = (StudentInGrid)Tab.SelectedItem;
 
                 //удаление ученика из базы
-                BD bd = new BD();
+                bdOperation bd = new bdOperation();
                 bd.bdNamePath = db_name;
                 bd.DeleteStudent(Studentik.uID);
 
-                Log.Items.Clear();
+                Tab.Items.Clear();
 
                 //Вывод списка студентов в лог
-                LogStudents();
+                bd.LogStudents(Tab.Items);
             }
         }
 
         private void ButtonEditStudent_Click(object sender, RoutedEventArgs e)
         {
-            if (Log.SelectedIndex > -1)
+            if (Tab.SelectedIndex > -1)
             {
                 //Открытие окна редактирования
                 WPFAddStudents add = new WPFAddStudents();
 
                 //Взятие данных из Grid
-                StudentInGrid StudentikGrid = (StudentInGrid)Log.SelectedItem;
+                var StudentikGrid = (StudentInGrid)Tab.SelectedItem;
 
                 //Перенос данных из Grid в окно редактирования
                 add.TextboxUID.Text = StudentikGrid.uID.ToString();
@@ -150,7 +117,7 @@ namespace BazaApp_lb4
                 //Если нажали кнопку "добавить"
                 if (add.ShowDialog() == true)
                 {
-                    Log.Items.Clear();
+                    Tab.Items.Clear();
 
                     //Берем данные из открывшегося окна
                     var StudentikAdd = new StudentInGrid()
@@ -161,12 +128,11 @@ namespace BazaApp_lb4
                     };
 
                     //редактирование студента в базе
-                    BD bd = new BD();
+                    bdOperation bd = new bdOperation();
                     bd.bdNamePath = db_name;
                     bd.EditStudent(StudentikAdd.uID, StudentikGrid.uID, StudentikAdd.Math, StudentikAdd.Lastname);
 
-                    //Log.Items.Clear();
-                    bd.ShowStudents();
+                    bd.LogStudents(Tab.Items);
                 }
             }
         }

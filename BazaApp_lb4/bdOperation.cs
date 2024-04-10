@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -10,40 +11,46 @@ using static BazaApp_lb4.MainWindow;
 
 namespace BazaApp_lb4
 {
-    public class BD : MainWindow
+    public class bdOperation
     {
+        //Class for Grid
+        public class StudentInGrid
+        {
+            public int uID { get; set; }
+            public string Lastname { get; set; }
+            public int Math { get; set; }
+        }
+
         public string bdNamePath;
 
-        public void ShowStudents()
+        public void LogStudents(ItemCollection items)
         {
-            SQLiteConnection m_dbConnection;
-            m_dbConnection = new SQLiteConnection("Data Source=" + bdNamePath + ";Version=3;");
-
-            //открытие соединения с базой данных
-            m_dbConnection.Open();
-
-            //вывод учеников в лог
-            string sqlShow = "SELECT Students.uID, Lastname, Math FROM Students, Grades where Students.uID=Grades.uID";
-            SQLiteCommand command = new SQLiteCommand(sqlShow, m_dbConnection);
-            SQLiteDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
             {
-                //создание строки
-                var data = new StudentInGrid
+                SQLiteConnection m_dbConnection;
+                m_dbConnection = new SQLiteConnection("Data Source=" + bdNamePath + ";Version=3;");
+
+                //открытие соединения с базой данных
+                m_dbConnection.Open();
+
+                //вывод учеников в лог
+                string sqlShow = "SELECT Students.uID, Lastname, Math FROM Students, Grades where Students.uID=Grades.uID";
+                SQLiteCommand command = new SQLiteCommand(sqlShow, m_dbConnection);
+                SQLiteDataReader reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    uID = int.Parse(reader["uID"].ToString()),
-                    Lastname = reader["Lastname"].ToString(),
-                    Math = int.Parse(reader["Math"].ToString())
-                };
-                    //добавление строки в DataGrid
-                    //НЕРАБОТАЕТ!!!
-                    Log.Items.Add(data);
-
+                    //чтение строки из data
+                    var data = new StudentInGrid
+                    {
+                        uID = int.Parse(reader["uID"].ToString()),
+                        Lastname = reader["Lastname"].ToString(),
+                        Math = int.Parse(reader["Math"].ToString())
+                    };
+                    //добавление студента в DataGrid
+                    items.Add(data);
+                }
+                //закрытие соединения с базой данных
+                m_dbConnection.Close();
             }
-
-            //закрытие соединения с базой данных
-            m_dbConnection.Close();
         }
 
         public void DeleteStudent(int uID)
@@ -98,6 +105,5 @@ namespace BazaApp_lb4
             m_dbConnection.Close();
 
         }
-        
     }
 }
